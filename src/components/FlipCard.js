@@ -1,89 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { FaShoppingCart } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import '../styles/card.css';
 
 function FlipCard({ product }) {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [isAdding, setIsAdding] = useState(false);
   const [error, setError] = useState(null);
-  const [isServerRunning, setIsServerRunning] = useState(true);
-
-  useEffect(() => {
-    const checkServer = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/test', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          mode: 'cors'
-        });
-        
-        if (!response.ok) {
-          throw new Error('Server not responding');
-        }
-        
-        const data = await response.json();
-        console.log('Server status:', data);
-        setIsServerRunning(true);
-        setError(null);
-      } catch (error) {
-        console.error('Server check failed:', error);
-        setIsServerRunning(false);
-        setError('Server is not running. Please start the server.');
-      }
-    };
-
-    checkServer();
-    // Check server status every 30 seconds
-    const interval = setInterval(checkServer, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const [quantity, setQuantity] = useState(1);
 
   const handleAddToCart = async () => {
-    if (!isServerRunning) {
-      setError('Server is not running. Please start the server.');
-      return;
-    }
-
     try {
       setIsAdding(true);
       setError(null);
       
-      // Log the product data to see what we're receiving
-      console.log('Product data:', product);
-
-      // Create a unique ID if not present
-      const productId = product.id || `prod_${Date.now()}`;
-      
-      const cartItem = {
-        productId: productId,
-        productName: product.name || 'Unknown Product',
-        price: parseFloat(product.price) || 0,
-        quantity: 1
-      };
-
-      console.log('Sending cart item:', cartItem);
-
-      const response = await fetch('http://localhost:3001/api/cart', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        },
-        mode: 'cors',
-        body: JSON.stringify(cartItem),
+      await addToCart({
+        ...product,
+        quantity
       });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Failed to add to cart');
-      }
-
-      const data = await response.json();
-      console.log('Item added to cart:', data);
+      
       navigate('/cart');
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -108,9 +45,24 @@ function FlipCard({ product }) {
               ) : null
             )}
           </ul>
+          <div className="quantity-selector">
+            <button 
+              onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+              className="quantity-btn"
+            >
+              -
+            </button>
+            <span className="quantity">{quantity}</span>
+            <button 
+              onClick={() => setQuantity(prev => prev + 1)}
+              className="quantity-btn"
+            >
+              +
+            </button>
+          </div>
           <button 
             onClick={handleAddToCart} 
-            disabled={isAdding || !isServerRunning}
+            disabled={isAdding}
             className={isAdding ? 'adding' : ''}
           >
             <FaShoppingCart /> {isAdding ? 'Adding...' : 'Add to Cart'}

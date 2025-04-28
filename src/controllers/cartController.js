@@ -3,104 +3,113 @@ const Cart = require('../models/Cart');
 // Add item to cart
 exports.addToCart = async (req, res) => {
   try {
-    console.log('Adding to cart - Request body:', req.body);
-    
+    const { productId, productName, price, quantity = 1 } = req.body;
+
     // Validate required fields
-    const requiredFields = ['productId', 'productName', 'price'];
-    const missingFields = requiredFields.filter(field => !req.body[field]);
-    
-    if (missingFields.length > 0) {
-      console.error('Missing required fields:', missingFields);
+    if (!productId || !productName || !price) {
       return res.status(400).json({ 
         message: 'Missing required fields',
-        missingFields 
+        required: ['productId', 'productName', 'price']
       });
+    }
+
+    // Validate price is a positive number
+    if (typeof price !== 'number' || price <= 0) {
+      return res.status(400).json({ 
+        message: 'Price must be a positive number'
+      });
+    }
+
+    // Validate quantity is a positive integer
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return res.status(400).json({ 
+        message: 'Quantity must be a positive integer'
+      });
+    }
+
+    // Check if item already exists in cart
+    const existingItem = await Cart.findOne({ productId });
+    if (existingItem) {
+      existingItem.quantity += quantity;
+      await existingItem.save();
+      return res.json(existingItem);
     }
 
     // Create new cart item
     const cartItem = new Cart({
-      productId: req.body.productId,
-      productName: req.body.productName,
-      price: parseFloat(req.body.price),
-      quantity: req.body.quantity || 1
+      productId,
+      productName,
+      price,
+      quantity
     });
 
-    console.log('Created cart item:', cartItem);
-
-    // Save to database
-    const savedItem = await cartItem.save();
-    console.log('Item saved to cart:', savedItem);
-    
-    res.status(201).json(savedItem);
+    await cartItem.save();
+    res.status(201).json(cartItem);
   } catch (error) {
-    console.error('Error adding to cart:', error);
-    res.status(400).json({ 
-      message: 'Failed to add item to cart',
-      error: error.message 
-    });
+    res.status(500).json({ message: 'Error adding item to cart', error: error.message });
   }
 };
 
 // Get all cart items
 exports.getCartItems = async (req, res) => {
   try {
-    console.log('Fetching all cart items');
-    const cartItems = await Cart.find();
-    console.log('Found cart items:', cartItems);
+    const cartItems = await Cart.find().sort({ addedAt: -1 });
     res.json(cartItems);
   } catch (error) {
-    console.error('Error getting cart items:', error);
-    res.status(500).json({ 
-      message: 'Failed to get cart items',
-      error: error.message 
-    });
+    res.status(500).json({ message: 'Error fetching cart items', error: error.message });
   }
 };
 
 // Update cart item quantity
 exports.updateCartItem = async (req, res) => {
   try {
-    console.log('Updating cart item:', req.params.id);
-    const cartItem = await Cart.findById(req.params.id);
-    
+    const { id } = req.params;
+    const { quantity } = req.body;
+
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return res.status(400).json({ 
+        message: 'Quantity must be a positive integer'
+      });
+    }
+
+    const cartItem = await Cart.findByIdAndUpdate(
+      id,
+      { quantity },
+      { new: true, runValidators: true }
+    );
+
     if (!cartItem) {
-      console.log('Cart item not found:', req.params.id);
       return res.status(404).json({ message: 'Cart item not found' });
     }
-    
-    cartItem.quantity = req.body.quantity;
-    const updatedItem = await cartItem.save();
-    console.log('Updated cart item:', updatedItem);
-    
-    res.json(updatedItem);
+
+    res.json(cartItem);
   } catch (error) {
-    console.error('Error updating cart item:', error);
-    res.status(400).json({ 
-      message: 'Failed to update cart item',
-      error: error.message 
-    });
+    res.status(500).json({ message: 'Error updating cart item', error: error.message });
   }
 };
 
 // Remove item from cart
-exports.removeFromCart = async (req, res) => {
+exports.removeCartItem = async (req, res) => {
   try {
-    console.log('Removing cart item:', req.params.id);
-    const cartItem = await Cart.findById(req.params.id);
-    
+    const { id } = req.params;
+    const cartItem = await Cart.findByIdAndDelete(id);
+
     if (!cartItem) {
-      console.log('Cart item not found:', req.params.id);
       return res.status(404).json({ message: 'Cart item not found' });
     }
-    
-    await cartItem.deleteOne();
-    console.log('Cart item removed:', req.params.id);
+
     res.json({ message: 'Item removed from cart' });
   } catch (error) {
-    console.error('Error removing cart item:', error);
-    res.status(500).json({ 
-      message: 'Failed to remove item from cart',
-      error: error.message 
-    });
+    res.status(500).json({ message: 'Error removing item from cart', error: error.message });
+  }
+};
+
+// Clear cart
+exports.clearCart = async (req, res) => {
+  try {
+    await Cart.deleteMany({});
+    res.json({ message: 'Cart cleared successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error clearing cart', error: error.message });
   }
 }; 

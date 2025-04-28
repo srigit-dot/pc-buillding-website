@@ -140,9 +140,35 @@ app.post('/api/cart', async (req, res, next) => {
   }
 });
 
-app.get('/api/cart', cartController.getCartItems);
-app.patch('/api/cart/:id', cartController.updateCartItem);
-app.delete('/api/cart/:id', cartController.removeFromCart);
+app.get('/api/cart', async (req, res, next) => {
+  try {
+    console.log('Fetching cart items');
+    await cartController.getCartItems(req, res, next);
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    next(error);
+  }
+});
+
+app.patch('/api/cart/:id', async (req, res, next) => {
+  try {
+    console.log('Updating cart item:', req.params.id);
+    await cartController.updateCartItem(req, res, next);
+  } catch (error) {
+    console.error('Error updating cart:', error);
+    next(error);
+  }
+});
+
+app.delete('/api/cart/:id', async (req, res, next) => {
+  try {
+    console.log('Removing cart item:', req.params.id);
+    await cartController.removeFromCart(req, res, next);
+  } catch (error) {
+    console.error('Error removing from cart:', error);
+    next(error);
+  }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
