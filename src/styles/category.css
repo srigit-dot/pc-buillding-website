@@ -1,0 +1,32 @@
+.category-heading {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: #ff5722;
+  text-shadow: 0 0 10px #ff5722;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+.category-card {
+  background-color: rgba(28, 28, 28, 0.85);
+  color: #ffccbc;
+  padding: 15px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 12px #ff5722;
+  transition: transform 0.3s, box-shadow 0.3s;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+}
+
+.category-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #ff7043;
+  background-color: rgba(40, 40, 40, 0.95);
+}

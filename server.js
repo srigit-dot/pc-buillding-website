@@ -3,11 +3,36 @@ const fs = require('fs');
 const csv = require('csv-parser');
 const cors = require('cors');
 const path = require('path');
+const connectDB = require('./src/config/db');
+const purchaseController = require('./src/controllers/purchaseController');
+const cartController = require('./src/controllers/cartController');
 
 const app = express();
-app.use(cors());
 
-const PORT = 3001;
+// Enable CORS for all routes with more permissive settings
+app.use(cors({
+  origin: '*', // Allow all origins
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+// Parse JSON bodies
+app.use(express.json());
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log('Request body:', req.body);
+  }
+  next();
+});
+
+const PORT = process.env.PORT || 3001;
+
+// Connect to MongoDB
+connectDB();
 
 // Map category name to CSV path
 const fileMap = {
@@ -90,6 +115,62 @@ app.get('/products/:category', async (req, res) => {
   }
 });
 
+// Purchase routes
+app.post('/api/purchases', purchaseController.createPurchase);
+app.get('/api/purchases', purchaseController.getPurchases);
+app.get('/api/purchases/:id', purchaseController.getPurchaseById);
+app.patch('/api/purchases/:id/status', purchaseController.updatePurchaseStatus);
+app.delete('/api/purchases/:id', purchaseController.cancelPurchase);
+
+// Cart routes
+app.post('/api/cart', async (req, res, next) => {
+  try {
+    console.log('Received cart request:', req.body);
+    if (!req.body.productId || !req.body.productName || !req.body.price) {
+      console.error('Missing required fields:', req.body);
+      return res.status(400).json({ 
+        message: 'Missing required fields',
+        received: req.body
+      });
+    }
+    await cartController.addToCart(req, res, next);
+  } catch (error) {
+    console.error('Error in cart route:', error);
+    next(error);
+  }
+});
+
+app.get('/api/cart', cartController.getCartItems);
+app.patch('/api/cart/:id', cartController.updateCartItem);
+app.delete('/api/cart/:id', cartController.removeFromCart);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ 
+    message: 'Internal server error',
+    error: err.message 
+  });
+});
+
+// Test route with CORS headers
+app.get('/api/test', (req, res) => {
+  console.log('Test endpoint hit');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.json({ 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`✅ Server is running on http://localhost:${PORT}`);
+  console.log('Available routes:');
+  console.log('- GET /api/test');
+  console.log('- POST /api/cart');
+  console.log('- GET /api/cart');
+  console.log('- PATCH /api/cart/:id');
+  console.log('- DELETE /api/cart/:id');
 });

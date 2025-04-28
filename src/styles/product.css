@@ -1,0 +1,21 @@
+/* styles/product.css */
+.product-container {
+    background-color: #121212;
+    padding: 40px;
+    min-height: 100vh;
+    color: #fff;
+  }
+  
+  .product-heading {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+    color: #ff7043;
+  }
+  
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  

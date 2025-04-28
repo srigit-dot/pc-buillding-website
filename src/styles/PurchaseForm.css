@@ -1,0 +1,65 @@
+.purchase-form {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 69, 0, 0.3);
+  color: #ff4500;
+}
+
+.purchase-form h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ff4500;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #ff6b3d;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ff4500;
+  border-radius: 5px;
+  background-color: #2d2d2d;
+  color: #ffffff;
+  font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #ff6b3d;
+  box-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
+}
+
+.submit-button {
+  width: 100%;
+  padding: 1rem;
+  background-color: #ff4500;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #ff6b3d;
+  box-shadow: 0 0 15px rgba(255, 69, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+} 
