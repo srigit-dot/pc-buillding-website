@@ -3,10 +3,18 @@ const Cart = require('../models/Cart');
 
 exports.createOrder = async (req, res) => {
   try {
+    console.log('Received order creation request:', JSON.stringify(req.body, null, 2));
+    
     const { items, total, paymentMethod, shippingAddress } = req.body;
 
     // Validate required fields
     if (!items || !items.length || !total || !paymentMethod || !shippingAddress) {
+      console.log('Missing required fields:', { 
+        items: items ? 'present' : 'missing',
+        total: total ? 'present' : 'missing',
+        paymentMethod: paymentMethod ? 'present' : 'missing',
+        shippingAddress: shippingAddress ? 'present' : 'missing'
+      });
       return res.status(400).json({
         message: 'Missing required fields',
         required: ['items', 'total', 'paymentMethod', 'shippingAddress']
@@ -15,7 +23,9 @@ exports.createOrder = async (req, res) => {
 
     // Validate payment method
     const validPaymentMethods = ['credit-card', 'paypal', 'cash'];
-    if (!validPaymentMethods.includes(paymentMethod)) {
+    const normalizedPaymentMethod = paymentMethod.toLowerCase();
+    if (!validPaymentMethods.includes(normalizedPaymentMethod)) {
+      console.log('Invalid payment method:', paymentMethod);
       return res.status(400).json({
         message: 'Invalid payment method',
         validMethods: validPaymentMethods
@@ -26,30 +36,43 @@ exports.createOrder = async (req, res) => {
     const requiredAddressFields = ['street', 'city', 'state', 'zipCode'];
     const missingAddressFields = requiredAddressFields.filter(field => !shippingAddress[field]);
     if (missingAddressFields.length > 0) {
+      console.log('Missing address fields:', missingAddressFields);
       return res.status(400).json({
         message: 'Missing required address fields',
         missingFields: missingAddressFields
       });
     }
 
-    // Validate items
-    for (const item of items) {
-      if (!item.productId || !item.productName || typeof item.price !== 'number' || typeof item.quantity !== 'number') {
+    // Format and validate items
+    const formattedItems = items.map(item => {
+      console.log('Processing item:', item);
+      // Ensure all required fields are present and properly formatted
+      const formattedItem = {
+        productId: item.productId || item._id || '',
+        productName: item.productName || item.name || '',
+        price: parseFloat(item.price) || 0,
+        quantity: parseInt(item.quantity) || 1
+      };
+      console.log('Formatted item:', formattedItem);
+      return formattedItem;
+    });
+
+    // Validate formatted items
+    for (const item of formattedItems) {
+      if (!item.productId || !item.productName || item.price <= 0 || item.quantity <= 0) {
+        console.log('Invalid item data:', item);
         return res.status(400).json({
           message: 'Invalid item data',
-          required: ['productId', 'productName', 'price (number)', 'quantity (number)']
-        });
-      }
-      if (item.price <= 0 || item.quantity <= 0) {
-        return res.status(400).json({
-          message: 'Price and quantity must be positive numbers'
+          item,
+          required: ['productId', 'productName', 'price (positive number)', 'quantity (positive number)']
         });
       }
     }
 
     // Validate total
-    const calculatedTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    if (Math.abs(calculatedTotal - total) > 0.01) { // Allow for small floating-point differences
+    const calculatedTotal = formattedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    if (Math.abs(calculatedTotal - total) > 0.01) {
+      console.log('Total mismatch:', { calculated: calculatedTotal, received: total });
       return res.status(400).json({
         message: 'Order total does not match item prices',
         calculated: calculatedTotal,
@@ -59,37 +82,56 @@ exports.createOrder = async (req, res) => {
 
     // Create new order
     const order = new Order({
-      items,
+      items: formattedItems,
       total,
-      paymentMethod,
+      paymentMethod: normalizedPaymentMethod,
       shippingAddress,
       status: 'pending'
     });
 
-    // Save the order
-    await order.save();
+    console.log('Creating order:', JSON.stringify(order, null, 2));
 
-    // Clear the cart after successful order creation
-    await Cart.deleteMany({});
+    try {
+      // Save the order
+      await order.save();
+      console.log('Order saved successfully');
 
-    res.status(201).json({
-      message: 'Order created successfully',
-      order
-    });
+      // Clear the cart after successful order creation
+      try {
+        await Cart.deleteMany({});
+        console.log('Cart cleared after order creation');
+      } catch (error) {
+        console.error('Error clearing cart:', error);
+        // Don't fail the order if cart clearing fails
+      }
+
+      res.status(201).json({
+        message: 'Order created successfully',
+        order
+      });
+    } catch (saveError) {
+      console.error('Error saving order:', saveError);
+      if (saveError.name === 'ValidationError') {
+        const validationErrors = Object.values(saveError.errors).map(err => ({
+          field: err.path,
+          message: err.message
+        }));
+        console.log('Validation errors:', validationErrors);
+        return res.status(400).json({
+          message: 'Validation error',
+          errors: validationErrors
+        });
+      }
+      throw saveError;
+    }
   } catch (error) {
     console.error('Error creating order:', error);
+    console.error('Error stack:', error.stack);
     
-    // Handle mongoose validation errors
-    if (error.name === 'ValidationError') {
-      return res.status(400).json({
-        message: 'Validation error',
-        errors: Object.values(error.errors).map(err => err.message)
-      });
-    }
-
     res.status(500).json({
       message: 'Failed to create order',
-      error: error.message
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };

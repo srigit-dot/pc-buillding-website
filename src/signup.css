@@ -1,0 +1,120 @@
+/* Signup.css */
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: url('./loginpgpic.jpg') no-repeat center center fixed;
+    background-size: cover;
+    overflow: hidden;
+}
+
+.signup-container {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.signup-box {
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    width: 300px;
+    color: white;
+}
+
+.signup-box h2 {
+    margin-bottom: 20px;
+    margin-left: -15px;
+}
+
+.signup-box input {
+    width: 80%;
+    padding: 10px 10px 10px 15px;
+    margin: 10px 0px;
+    border: none;
+    border-radius: 20px;
+    outline: none;
+    background: #333;
+    color: white;
+}
+
+.signup-box button {
+    width: 70%;
+    padding: 10px;
+    border: none;
+    border-radius: 20px;
+    background: #ffffff;
+    color: #333;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.signup-box button:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+.signup-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    font-size: 0.85rem;
+}
+
+.signup-options a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s ease;
+}
+
+.signup-options a:hover {
+    color: #f0f0f0;
+    text-decoration: underline;
+}
+
+.signup-circle {
+    position: absolute;
+    width: 380px;
+    height: 380px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #ff416c, #ff4b2b, #f9d423, #ff416c);
+    animation: rotate 6s linear infinite;
+    z-index: 1;
+    right: 575px;
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.8); /* light white for visibility */
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Alert styles */
+.alert {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+  

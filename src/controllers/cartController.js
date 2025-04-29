@@ -1,4 +1,5 @@
 const Cart = require('../models/Cart');
+const mongoose = require('mongoose');
 
 // Add item to cart
 exports.addToCart = async (req, res) => {
@@ -92,15 +93,72 @@ exports.updateCartItem = async (req, res) => {
 exports.removeCartItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const cartItem = await Cart.findByIdAndDelete(id);
-
-    if (!cartItem) {
-      return res.status(404).json({ message: 'Cart item not found' });
+    console.log('Attempting to remove cart item with ID:', id);
+    
+    if (!id) {
+      console.error('No ID provided in request');
+      return res.status(400).json({ 
+        success: false,
+        message: 'No ID provided for deletion' 
+      });
     }
 
-    res.json({ message: 'Item removed from cart' });
+    // Validate MongoDB ID format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      console.error('Invalid MongoDB ID format:', id);
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid item ID format' 
+      });
+    }
+    
+    // First check if the item exists
+    const existingItem = await Cart.findById(id);
+    if (!existingItem) {
+      console.log('Cart item not found with ID:', id);
+      return res.status(404).json({ 
+        success: false,
+        message: 'Cart item not found' 
+      });
+    }
+    
+    console.log('Found cart item:', existingItem);
+    
+    // Delete the item
+    const cartItem = await Cart.findByIdAndDelete(id);
+    console.log('Delete operation result:', cartItem);
+
+    res.json({ 
+      success: true,
+      message: 'Item removed from cart',
+      deletedItem: cartItem
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error removing item from cart', error: error.message });
+    console.error('Error in removeCartItem:', error);
+    console.error('Error stack:', error.stack);
+    
+    // Check for specific MongoDB errors
+    if (error.name === 'CastError') {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid item ID format',
+        error: error.message 
+      });
+    }
+    
+    if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+      return res.status(500).json({ 
+        success: false,
+        message: 'Database error occurred',
+        error: error.message 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false,
+      message: 'Error removing item from cart', 
+      error: error.message 
+    });
   }
 };
 
@@ -115,6 +173,7 @@ exports.clearCart = async (req, res) => {
     
     if (cartItems.length === 0) {
       return res.status(200).json({ 
+        success: true,
         message: 'Cart is already empty',
         deletedCount: 0 
       });
@@ -129,12 +188,14 @@ exports.clearCart = async (req, res) => {
     }
 
     res.status(200).json({ 
+      success: true,
       message: 'Cart cleared successfully',
       deletedCount: result.deletedCount 
     });
   } catch (error) {
     console.error('Error clearing cart:', error);
     res.status(500).json({ 
+      success: false,
       message: 'Error clearing cart', 
       error: error.message || 'Internal server error'
     });

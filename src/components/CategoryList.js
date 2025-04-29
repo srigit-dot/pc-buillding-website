@@ -8,9 +8,15 @@ function CategoryList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get("http://localhost:3001/categories")
-      .then((res) => setCategories(res.data))
-      .catch((err) => console.error("Error fetching categories:", err));
+    axios.get("http://localhost:3001/api/products/categories/list")
+      .then((res) => {
+        console.log('Categories response:', res.data);
+        setCategories(res.data || []); // Ensure we always set an array
+      })
+      .catch((err) => {
+        console.error("Error fetching categories:", err);
+        setCategories([]); // Set empty array on error
+      });
   }, []);
 
   const backgroundStyle = {
@@ -29,7 +35,7 @@ function CategoryList() {
     <div style={backgroundStyle}>
       <h1 className="category-heading">🔥 Choose Your PC Part Category</h1>
       <div className="category-grid">
-        {categories.map((cat, index) => (
+        {Array.isArray(categories) && categories.map((cat, index) => (
           <div
             key={index}
             onClick={() => navigate(`/products/${cat}`)}

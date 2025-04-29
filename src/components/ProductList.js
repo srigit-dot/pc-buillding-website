@@ -9,6 +9,8 @@ import ProductCard from './ProductCard';
 function ProductList() {
   const { category } = useParams();
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { 
     getMissingComponents, 
     getRecommendedNext,
@@ -16,13 +18,33 @@ function ProductList() {
   } = useBuild();
 
   useEffect(() => {
-    axios.get(`http://localhost:3001/products/${category}`)
-      .then((res) => setProducts(res.data))
-      .catch((err) => console.error("Error fetching products:", err));
+    setLoading(true);
+    setError(null);
+    
+    axios.get(`http://localhost:3001/api/products/category/${category}`)
+      .then((res) => {
+        console.log('Products response:', res.data);
+        setProducts(Array.isArray(res.data) ? res.data : []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching products:", err);
+        setError(err.message);
+        setProducts([]);
+        setLoading(false);
+      });
   }, [category]);
 
   const missingComponents = getMissingComponents();
   const nextRecommended = getRecommendedNext();
+
+  if (loading) {
+    return <div className="loading">Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="error">Error: {error}</div>;
+  }
 
   return (
     <div className="product-container">
@@ -46,13 +68,17 @@ function ProductList() {
 
       <h2 className="product-heading">🛠 {category.toUpperCase()} Components</h2>
       <div className="product-grid">
-        {products.map((product, index) => (
-          <ProductCard 
-            key={index} 
-            product={product} 
-            category={category}
-          />
-        ))}
+        {products.length > 0 ? (
+          products.map((product, index) => (
+            <ProductCard 
+              key={index} 
+              product={product} 
+              category={category}
+            />
+          ))
+        ) : (
+          <div className="no-products">No products found for this category.</div>
+        )}
       </div>
     </div>
   );

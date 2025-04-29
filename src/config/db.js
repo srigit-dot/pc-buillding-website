@@ -1,20 +1,30 @@
 const mongoose = require('mongoose');
-require('dotenv').config();
 
 const connectDB = async () => {
   try {
     console.log('Attempting to connect to MongoDB...');
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/product-store', {
+    
+    // Use a simple local connection string
+    const mongoURI = 'mongodb://localhost:27017/product-store';
+    
+    // Basic connection options
+    const options = {
       useNewUrlParser: true,
-      useUnifiedTopology: true
-    });
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000
+    };
+
+    const conn = await mongoose.connect(mongoURI, options);
+    
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log('Database name:', conn.connection.name);
     console.log('Connection state:', conn.connection.readyState);
   } catch (error) {
     console.error('❌ MongoDB Connection Error:', error.message);
-    console.error('Full error:', error);
+    console.error('Error stack:', error.stack);
     console.error('Please make sure MongoDB is running on your system');
+    console.error('You can start MongoDB with: mongod');
     process.exit(1);
   }
 };

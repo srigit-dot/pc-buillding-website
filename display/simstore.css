@@ -1,0 +1,88 @@
+:root {
+  --primary:#5b8ba4; --accent:#4b6e8e;
+  --bg-dark:#11161f; --chassis-bg:rgba(17,22,31,0.6);
+  --panel-glow:rgba(75,110,142,0.2); --border-glow:rgba(75,110,142,0.3);
+  --font:'Orbitron',sans-serif;
+}
+body {
+  margin:0; font-family:var(--font);
+  background:radial-gradient(ellipse at center,#11161f 0%,#0a101e 100%);
+  color:#cbd5e1; overflow-x:hidden;
+}
+header {
+  text-align:center; padding:2em;
+  background:var(--bg-dark);
+  border-bottom:2px solid var(--accent);
+  box-shadow:0 0 20px var(--panel-glow);
+}
+h1 { font-size:2em; color:var(--primary);
+     text-shadow:0 0 10px var(--accent); }
+main {
+  max-width:960px; margin:2em auto; padding:2em;
+}
+.form-section, .results-section {
+  background:var(--chassis-bg);
+  backdrop-filter:blur(8px);
+  border-radius:12px; padding:1.5em;
+  box-shadow:0 0 25px var(--panel-glow);
+  border:1px solid var(--border-glow);
+  margin-bottom:2em;
+}
+.form-row {
+  display:flex; flex-wrap:wrap; gap:1.5em;
+}
+.input-group {
+  flex:1; min-width:220px;
+}
+label {
+  display:block; font-weight:bold; margin-bottom:.3em;
+  color:#a1a8b3;
+}
+input, select {
+  width:100%; padding:.6em;
+  border:none; border-radius:8px;
+  background:rgba(255,255,255,0.03);
+  color:#cbd5e1;
+  box-shadow:inset 0 0 6px rgba(75,110,142,0.2);
+  transition:box-shadow .3s ease;
+}
+input:focus, select:focus {
+  outline:none; box-shadow:0 0 8px var(--accent);
+}
+button {
+  background:linear-gradient(135deg,var(--accent),var(--primary));
+  color:#f0f4f8; padding:.8em 1.6em;
+  border:none; border-radius:8px; cursor:pointer;
+  box-shadow:0 0 15px var(--panel-glow);
+  transition:transform .2s, box-shadow .2s;
+  position:relative; overflow:hidden;
+}
+button:active {
+  transform:scale(.98);
+  box-shadow:0 0 30px var(--primary);
+}
+button::after {
+  content:'';
+  position:absolute; top:-40%; left:-40%;
+  width:180%; height:180%;
+  background:radial-gradient(circle,hsla(0,0%,100%,.1),transparent 70%);
+  animation:shine 1.2s linear infinite;
+}
+@keyframes shine {
+  0%   {transform:translate(-50%,-50%) rotate(0deg);}
+  100% {transform:translate(-50%,-50%) rotate(360deg);}
+}
+.output, .suggestion {
+  margin-top:1em; padding:1em; border-radius:8px;
+  background:rgba(255,255,255,0.04);
+  box-shadow:inset 0 0 15px rgba(75,110,142,0.1);
+}
+.output p, .suggestion p {
+  background:rgba(75,110,142,0.03); padding:.6em;
+  margin:.4em 0; border-left:3px solid var(--accent);
+  border-radius:4px;
+}
+footer {
+  text-align:center; padding:1.2em;
+  background:#11161f; color:#8b98a5; font-size:.9em;
+}

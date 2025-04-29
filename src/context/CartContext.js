@@ -74,18 +74,41 @@ export const CartProvider = ({ children }) => {
 
   const removeItem = async (itemId) => {
     try {
+      console.log('Attempting to remove item:', itemId);
+      
+      if (!itemId) {
+        throw new Error('No item ID provided for deletion');
+      }
+      
       const response = await fetch(`http://localhost:3001/api/cart/${itemId}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
+      const data = await response.json();
+      console.log('Delete response:', data);
+
       if (!response.ok) {
-        throw new Error('Failed to remove item');
+        console.error('Failed to remove item:', data);
+        throw new Error(data.message || 'Failed to remove item');
       }
 
+      if (!data.success) {
+        console.error('Operation not successful:', data);
+        throw new Error(data.message || 'Failed to remove item');
+      }
+
+      console.log('Item removed successfully:', data);
       setCartItems(prevItems => prevItems.filter(item => item._id !== itemId));
     } catch (error) {
-      console.error('Error removing item:', error);
-      throw error;
+      console.error('Error in removeItem:', error);
+      // Show a more user-friendly error message
+      const errorMessage = error.message === 'Failed to fetch' 
+        ? 'Unable to connect to the server. Please check your connection and try again.'
+        : error.message;
+      throw new Error(errorMessage);
     }
   };
 
