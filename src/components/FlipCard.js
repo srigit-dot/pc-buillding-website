@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import '../styles/card.css';
 
-function FlipCard({ product }) {
+function ProductCard({ product }) {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [isAdding, setIsAdding] = useState(false);
@@ -31,13 +31,14 @@ function FlipCard({ product }) {
   };
 
   return (
-    <div className="flip-card">
-      <div className="flip-card-inner">
-        <div className="flip-card-front">
+    <div className="product-card">
+      <div className="product-card-content">
+        <div className="product-header">
           <h3>{product.name || 'Unknown Product'}</h3>
           <p>${product.price || '0.00'}</p>
         </div>
-        <div className="flip-card-back">
+        
+        <div className="product-details">
           <ul>
             {Object.entries(product).map(([key, value], i) =>
               key !== "name" && key !== "price" ? (
@@ -45,33 +46,36 @@ function FlipCard({ product }) {
               ) : null
             )}
           </ul>
-          <div className="quantity-selector">
-            <button 
-              onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
-              className="quantity-btn"
-            >
-              -
-            </button>
-            <span className="quantity">{quantity}</span>
-            <button 
-              onClick={() => setQuantity(prev => prev + 1)}
-              className="quantity-btn"
-            >
-              +
-            </button>
-          </div>
-          <button 
-            onClick={handleAddToCart} 
-            disabled={isAdding}
-            className={isAdding ? 'adding' : ''}
-          >
-            <FaShoppingCart /> {isAdding ? 'Adding...' : 'Add to Cart'}
-          </button>
-          {error && <p className="error-message">{error}</p>}
         </div>
+
+        <div className="quantity-selector">
+          <button 
+            onClick={() => setQuantity(prev => Math.max(1, prev - 1))}
+            className="quantity-btn"
+          >
+            -
+          </button>
+          <span className="quantity">{quantity}</span>
+          <button 
+            onClick={() => setQuantity(prev => prev + 1)}
+            className="quantity-btn"
+          >
+            +
+          </button>
+        </div>
+
+        <button 
+          onClick={handleAddToCart} 
+          disabled={isAdding}
+          className={`add-to-cart-btn ${isAdding ? 'adding' : ''}`}
+        >
+          <FaShoppingCart /> {isAdding ? 'Adding...' : 'Add to Cart'}
+        </button>
+        
+        {error && <p className="error-message">{error}</p>}
       </div>
     </div>
   );
 }
 
-export default FlipCard;
+export default ProductCard;

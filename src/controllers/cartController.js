@@ -107,9 +107,36 @@ exports.removeCartItem = async (req, res) => {
 // Clear cart
 exports.clearCart = async (req, res) => {
   try {
-    await Cart.deleteMany({});
-    res.json({ message: 'Cart cleared successfully' });
+    console.log('Clearing cart...');
+    
+    // First check if there are any items in the cart
+    const cartItems = await Cart.find({});
+    console.log(`Found ${cartItems.length} items to clear`);
+    
+    if (cartItems.length === 0) {
+      return res.status(200).json({ 
+        message: 'Cart is already empty',
+        deletedCount: 0 
+      });
+    }
+
+    // Delete all items
+    const result = await Cart.deleteMany({});
+    console.log('Cart cleared successfully:', result);
+    
+    if (!result || !result.acknowledged) {
+      throw new Error('Database operation not acknowledged');
+    }
+
+    res.status(200).json({ 
+      message: 'Cart cleared successfully',
+      deletedCount: result.deletedCount 
+    });
   } catch (error) {
-    res.status(500).json({ message: 'Error clearing cart', error: error.message });
+    console.error('Error clearing cart:', error);
+    res.status(500).json({ 
+      message: 'Error clearing cart', 
+      error: error.message || 'Internal server error'
+    });
   }
 }; 

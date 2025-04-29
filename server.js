@@ -6,6 +6,7 @@ const path = require('path');
 const connectDB = require('./src/config/db');
 const purchaseController = require('./src/controllers/purchaseController');
 const cartController = require('./src/controllers/cartController');
+const orderController = require('./src/controllers/orderController');
 
 const app = express();
 
@@ -150,6 +151,31 @@ app.get('/api/cart', async (req, res, next) => {
   }
 });
 
+// Clear cart route - handle directly in route
+app.delete('/api/cart/clear', async (req, res) => {
+  try {
+    console.log('Clearing cart...');
+    const Cart = require('./src/models/Cart');
+    
+    // Delete all items from the cart collection
+    const result = await Cart.deleteMany({});
+    console.log('Cart cleared successfully:', result);
+
+    res.status(200).json({
+      success: true,
+      message: 'Cart cleared successfully',
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to clear cart',
+      error: error.message
+    });
+  }
+});
+
 app.patch('/api/cart/:id', async (req, res, next) => {
   try {
     console.log('Updating cart item:', req.params.id);
@@ -166,6 +192,47 @@ app.delete('/api/cart/:id', async (req, res, next) => {
     await cartController.removeFromCart(req, res, next);
   } catch (error) {
     console.error('Error removing from cart:', error);
+    next(error);
+  }
+});
+
+// Order routes
+app.post('/api/orders', async (req, res, next) => {
+  try {
+    console.log('Creating order:', req.body);
+    await orderController.createOrder(req, res, next);
+  } catch (error) {
+    console.error('Error creating order:', error);
+    next(error);
+  }
+});
+
+app.get('/api/orders', async (req, res, next) => {
+  try {
+    console.log('Fetching orders');
+    await orderController.getOrders(req, res, next);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    next(error);
+  }
+});
+
+app.get('/api/orders/:id', async (req, res, next) => {
+  try {
+    console.log('Fetching order:', req.params.id);
+    await orderController.getOrderById(req, res, next);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    next(error);
+  }
+});
+
+app.patch('/api/orders/:id/status', async (req, res, next) => {
+  try {
+    console.log('Updating order status:', req.params.id);
+    await orderController.updateOrderStatus(req, res, next);
+  } catch (error) {
+    console.error('Error updating order status:', error);
     next(error);
   }
 });
