@@ -17,6 +17,15 @@ const Login = () => {
       return;
     }
 
+    // Check for admin credentials
+    if (username === 'admin' && password === '12345') {
+      localStorage.setItem('token', 'admin-token');
+      localStorage.setItem('user', JSON.stringify({ username: 'admin', role: 'admin' }));
+      setIsAuthenticated(true);
+      navigate("/admin");
+      return;
+    }
+
     try {
       const res = await fetch("http://localhost:5000/login", {
         method: "POST",
@@ -26,8 +35,9 @@ const Login = () => {
 
       const data = await res.json();
       if (res.ok) {
-        // Store the token in localStorage
+        // Store the token and user data in localStorage
         localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         // Update authentication state
         setIsAuthenticated(true);
         // Navigate to home page

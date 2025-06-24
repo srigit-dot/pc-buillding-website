@@ -1,7 +1,36 @@
+/* Custom Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #ff0000;
+    border-radius: 5px;
+    border: 2px solid #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #ff3333;
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #ff0000 #1a1a1a;
+}
+
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
     color: #f1f1f1;
+    height: 100vh;
+    overflow-y: auto;
 }
 
 /* Only apply dark background to non-auth pages */
@@ -29,11 +58,19 @@ button:hover {
 .app-container {
     min-height: 100vh;
     color: #ffffff;
+    overflow-y: auto;
 }
 
 /* Only apply dark background to non-auth pages */
 body:not(.auth-page) .app-container {
     background-color: #1a1a1a;
+}
+
+/* Add this new class for scrollable content */
+.scrollable-content {
+    overflow-y: auto;
+    height: calc(100vh - 100px); /* Adjust based on your header height */
+    padding: 20px;
 }
 
 .app-header {

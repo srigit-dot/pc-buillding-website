@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const PORT = 5000;
@@ -14,6 +15,9 @@ mongoose.connect("mongodb://localhost:27017/pcBuilder", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+// Add this after mongoose connection
+const JWT_SECRET = 'your-secret-key'; // In production, use environment variable
 
 // User schema
 const UserSchema = new mongoose.Schema({
@@ -52,7 +56,13 @@ app.post("/login", async (req, res) => {
     const user = await User.findOne({ username, password });
 
     if (user) {
-      res.json({ message: "Login successful" });
+      // Generate JWT token
+      const token = jwt.sign({ userId: user._id }, JWT_SECRET);
+      res.json({ 
+        message: "Login successful",
+        token: token,
+        user: { name: user.username }
+      });
     } else {
       res.status(401).json({ message: "Wrong username or password" });
     }

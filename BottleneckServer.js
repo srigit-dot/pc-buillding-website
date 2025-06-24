@@ -3,7 +3,14 @@ const cors = require('cors');
 const app = express();
 const partsData = require('./data/parts_bottleneck.json');
 
-app.use(cors());
+// Enable CORS with more permissive settings
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // API - Get all parts
@@ -62,6 +69,19 @@ app.post('/api/bottleneck', (req, res) => {
   }
 });
 
-// ====== Only one app.listen at bottom ======
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err);
+  res.status(500).json({ 
+    message: 'Internal server error',
+    error: err.message 
+  });
+});
+
 const PORT = process.env.PORT || 3004;
-app.listen(PORT, () => console.log(`🚀 Backend running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Bottleneck Server running on port ${PORT}`);
+  console.log('Available endpoints:');
+  console.log('- GET /api/parts');
+  console.log('- POST /api/bottleneck');
+});

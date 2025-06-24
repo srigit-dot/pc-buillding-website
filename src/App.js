@@ -15,6 +15,7 @@ import Login from './login';
 import Signup from './Signup';
 import ForgotPassword from './ForgotPassword';
 import BottleneckChecker from './BottleneckChecker';
+import AdminPage from './AdminPage';
 
 // Create Auth Context
 export const AuthContext = React.createContext();
@@ -25,11 +26,17 @@ function AppContent() {
   const location = useLocation();
 
   useEffect(() => {
-    // Check if user is already logged in
     const token = localStorage.getItem('token');
-    if (token) {
+    const user = localStorage.getItem('user');
+    
+    if (!token || !user) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setIsAuthenticated(false);
+    } else {
       setIsAuthenticated(true);
     }
+    
     setLoading(false);
 
     // Add/remove auth-page class based on current route
@@ -42,8 +49,21 @@ function AppContent() {
     if (loading) {
       return <div>Loading...</div>;
     }
-    return isAuthenticated ? children : <Navigate to="/login" />;
+    if (!isAuthenticated) {
+      return <Navigate to="/login" replace />;
+    }
+    return children;
   };
+
+  // If loading, show loading state
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // If not authenticated and not on an auth page, redirect to login
+  if (!isAuthenticated && !['/login', '/signup', '/forget-password'].includes(location.pathname)) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, setIsAuthenticated }}>
@@ -71,11 +91,21 @@ function AppContent() {
               <Route path="/signup" element={<Signup />} />
               <Route path="/forget-password" element={<ForgotPassword />} />
               <Route
-                path="/"
+                path="/admin"
                 element={
                   <ProtectedRoute>
-                    <CategoryList />
+                    <AdminPage />
                   </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/"
+                element={
+                  isAuthenticated ? (
+                    <CategoryList />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
                 }
               />
               <Route
@@ -135,11 +165,7 @@ function AppContent() {
 }
 
 function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
+  return <AppContent />;
 }
 
 export default App;

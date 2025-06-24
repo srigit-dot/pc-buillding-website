@@ -48,7 +48,7 @@ export const CartProvider = ({ children }) => {
     if (newQuantity < 1) return;
 
     try {
-      const response = await fetch(`http://localhost:3001/api/cart/${itemId}`, {
+      const response = await fetch(`http://localhost:3001/api/cart/item/${itemId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +57,8 @@ export const CartProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update quantity');
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || 'Failed to update quantity');
       }
 
       const updatedItem = await response.json();
@@ -80,27 +81,22 @@ export const CartProvider = ({ children }) => {
         throw new Error('No item ID provided for deletion');
       }
       
-      const response = await fetch(`http://localhost:3001/api/cart/${itemId}`, {
+      const response = await fetch(`http://localhost:3001/api/cart/item/${itemId}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || `Failed to remove item: ${response.status}`);
+      }
+
+      // Only try to parse JSON if we have a successful response
       const data = await response.json();
       console.log('Delete response:', data);
 
-      if (!response.ok) {
-        console.error('Failed to remove item:', data);
-        throw new Error(data.message || 'Failed to remove item');
-      }
-
-      if (!data.success) {
-        console.error('Operation not successful:', data);
-        throw new Error(data.message || 'Failed to remove item');
-      }
-
-      console.log('Item removed successfully:', data);
       setCartItems(prevItems => prevItems.filter(item => item._id !== itemId));
     } catch (error) {
       console.error('Error in removeItem:', error);

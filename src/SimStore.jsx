@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useCart } from "./context/CartContext";
+import "./styles/simstore.css";
 
 export default function SimStore() {
   const [budget, setBudget] = useState("");
@@ -46,9 +47,12 @@ export default function SimStore() {
         parts
           .map((p) => {
             total += p.price;
-            return `<p><strong>${p.type}</strong>: ${p.model} <span style="float:right;">$${p.price} (Score: ${p.score})</span></p>`;
+            return `<p><strong>${p.type.toUpperCase()}</strong> ${
+              p.model
+            } <span style="float:right;">$${p.price}</span></p>`;
           })
-          .join("") + `<hr><p><strong>Total:</strong> $${total}</p>`;
+          .join("") +
+        `<hr><p><strong>Total:</strong> <span style="float:right;">$${total}</span></p>`;
 
       setOutput(html);
       setSuggestion(
@@ -75,7 +79,7 @@ export default function SimStore() {
       for (const component of currentBuild) {
         await addToCart({
           productId: component.model,
-          productName: `${component.type}: ${component.model}`,
+          productName: `${component.type.toUpperCase()}: ${component.model}`,
           price: component.price,
           quantity: 1,
           type: component.type,
@@ -89,56 +93,58 @@ export default function SimStore() {
   };
 
   return (
-    <div className="p-4 max-w-xl mx-auto font-sans">
-      <h1 className="text-2xl font-bold mb-4">🖥️ PC Build Simulation Store</h1>
+    <div className="simstore-container">
+      <h1 className="simstore-title">🖥️ PC Build Simulation Store</h1>
 
-      <div className="space-y-4">
-        <div>
-          <label className="block">Budget ($)</label>
-          <input
-            type="number"
-            value={budget}
-            onChange={(e) => setBudget(e.target.value)}
-            className="w-full p-2 border rounded"
-          />
-        </div>
+      <div className="form-group">
+        <label>Budget ($)</label>
+        <input
+          type="number"
+          value={budget}
+          onChange={(e) => setBudget(e.target.value)}
+          placeholder="Enter your budget"
+        />
+      </div>
 
-        <div>
-          <label className="block">Usage Type</label>
-          <select
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
-            className="w-full p-2 border rounded"
-          >
-            <option value="general">General Tasks</option>
-            <option value="cpu">CPU‑Intensive Tasks</option>
-            <option value="gpu">GPU‑Intensive Tasks</option>
-          </select>
-        </div>
+      <div className="form-group">
+        <label>Usage Type</label>
+        <select value={task} onChange={(e) => setTask(e.target.value)}>
+          <option value="general">General Tasks</option>
+          <option value="cpu">CPU‑Intensive Tasks</option>
+          <option value="gpu">GPU‑Intensive Tasks</option>
+        </select>
+      </div>
 
-        <div className="flex space-x-4">
+      <div className="button-group">
+        <button onClick={generateBuild} className="simstore-btn simulate-btn">
+          Simulate Build
+        </button>
+
+        {currentBuild && (
           <button
-            onClick={generateBuild}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex-1"
+            onClick={handleAddToCart}
+            className="simstore-btn add-cart-btn"
           >
-            Simulate Build
+            Add Build to Cart
           </button>
+        )}
+      </div>
 
-          {currentBuild && (
-            <button
-              onClick={handleAddToCart}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 flex-1"
-            >
-              Add Build to Cart
-            </button>
-          )}
+      {output && (
+        <div className="build-output">  
+          <div dangerouslySetInnerHTML={{ __html: output }} />
         </div>
-      </div>
+      )}
 
-      <div className="mt-6">
-        <div dangerouslySetInnerHTML={{ __html: output }} />
-        <div className="mt-4 text-sm">{suggestion}</div>
-      </div>
+      {suggestion && (
+        <div
+          className={`suggestion ${
+            suggestion.includes("❌") ? "error" : "success"
+          }`}
+        >
+          {suggestion}
+        </div>
+      )}
     </div>
   );
 }

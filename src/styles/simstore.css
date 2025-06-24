@@ -1,0 +1,150 @@
+.simstore-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background-color: rgba(28, 28, 28, 0.85);
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(255, 87, 34, 0.3);
+  color: #fff;
+}
+
+.simstore-title {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ff4500;
+  font-weight: 600;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #ff6b3d;
+  font-size: 1.1rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ff4500;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: #ffffff;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #ff6b3d;
+  box-shadow: 0 0 10px rgba(255, 69, 0, 0.3);
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.simstore-btn {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.simulate-btn {
+  background-color: #ff4500;
+  color: white;
+}
+
+.simulate-btn:hover {
+  background-color: #ff5722;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 69, 0, 0.3);
+}
+
+.add-cart-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.add-cart-btn:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+}
+
+.build-output {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 1.5rem;
+  border-radius: 5px;
+  margin-top: 2rem;
+}
+
+.build-output p {
+  margin: 0.8rem 0;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.build-output strong {
+  color: #ff4500;
+}
+
+.build-output hr {
+  border: none;
+  border-top: 1px solid rgba(255, 69, 0, 0.3);
+  margin: 1rem 0;
+}
+
+.suggestion {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+}
+
+.suggestion.success {
+  border-left: 4px solid #4CAF50;
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #ffffff;
+}
+
+.suggestion.error {
+  border-left: 4px solid #ff4444;
+  background-color: rgba(255, 68, 68, 0.1);
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .simstore-container {
+    padding: 1rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .simstore-btn {
+    width: 100%;
+  }
+} 

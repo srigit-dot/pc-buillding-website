@@ -5,12 +5,14 @@ import { useParams } from 'react-router-dom';
 import { useBuild } from '../context/BuildContext';
 import '../styles/product.css';
 import ProductCard from './ProductCard';
+import { FaSearch } from 'react-icons/fa';
 
 function ProductList() {
   const { category } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { 
     getMissingComponents, 
     getRecommendedNext,
@@ -37,6 +39,21 @@ function ProductList() {
 
   const missingComponents = getMissingComponents();
   const nextRecommended = getRecommendedNext();
+
+  // Filter products based on search term
+  const filteredProducts = products.filter(product => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      product.name?.toLowerCase().includes(searchLower) ||
+      product.brand?.toLowerCase().includes(searchLower) ||
+      product.description?.toLowerCase().includes(searchLower) ||
+      Object.entries(product).some(([key, value]) => 
+        typeof value === 'string' && 
+        !['name', 'brand', 'description'].includes(key) && 
+        value.toLowerCase().includes(searchLower)
+      )
+    );
+  });
 
   if (loading) {
     return <div className="loading">Loading products...</div>;
@@ -66,10 +83,23 @@ function ProductList() {
         </div>
       </div>
 
-      <h2 className="product-heading">🛠 {category.toUpperCase()} Components</h2>
+      <div className="product-header">
+        <h2 className="product-heading">🛠 {category.toUpperCase()} Components</h2>
+        <div className="search-container">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+      </div>
+
       <div className="product-grid">
-        {products.length > 0 ? (
-          products.map((product, index) => (
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product, index) => (
             <ProductCard 
               key={index} 
               product={product} 
@@ -77,7 +107,9 @@ function ProductList() {
             />
           ))
         ) : (
-          <div className="no-products">No products found for this category.</div>
+          <div className="no-products">
+            {searchTerm ? 'No products found matching your search.' : 'No products found for this category.'}
+          </div>
         )}
       </div>
     </div>
