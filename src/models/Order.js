@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const orderSchema = new mongoose.Schema({
+  orderId: { type: String, unique: true },
   items: [{
     productId: { type: String, required: true },
     productName: { type: String, required: true },
@@ -8,8 +9,8 @@ const orderSchema = new mongoose.Schema({
     quantity: { type: Number, required: true }
   }],
   total: { type: Number, required: true },
-  paymentMethod: { 
-    type: String, 
+  paymentMethod: {
+    type: String,
     required: true,
     enum: ['credit-card', 'paypal', 'cash']
   },

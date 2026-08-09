@@ -82,6 +82,7 @@ exports.createOrder = async (req, res) => {
 
     // Create new order
     const order = new Order({
+      orderId: `ORD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
       items: formattedItems,
       total,
       paymentMethod: normalizedPaymentMethod,
