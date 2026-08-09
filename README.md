@@ -57,9 +57,6 @@ The application runs on a microservice-inspired architecture with several indepe
     node SimstoreServer.js
     node server.js
     node BottleneckServer.js
-    ```
-    To run the Admin server (which uses ES modules):
-    ```bash
     node Adminserver.js
     ```
 4.  **Start the React Frontend:**
