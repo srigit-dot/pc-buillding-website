@@ -58,7 +58,7 @@ The application runs on a microservice-inspired architecture with several indepe
     node server.js
     node BottleneckServer.js
     ```
-    *(Optional) To run the Admin server (which uses ES modules):*
+    To run the Admin server (which uses ES modules):
     ```bash
     node Adminserver.js
     ```
