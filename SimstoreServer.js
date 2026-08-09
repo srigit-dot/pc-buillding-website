@@ -40,7 +40,7 @@ app.use('/api/purchases', purchaseRoutes);
 
 app.get('/api/ai-build', async (req, res) => {
   console.log('Received request:', req.query);
-  
+
   const { task, budget } = req.query;
   const budgetInDollars = parseFloat(budget);
 
@@ -52,7 +52,7 @@ app.get('/api/ai-build', async (req, res) => {
   try {
     const filePath = path.join(__dirname, 'data', 'ml_validatedpc.json');
     console.log('Looking for file at:', filePath);
-    
+
     if (!fs.existsSync(filePath)) {
       console.log('File not found:', filePath);
       return res.status(500).json({ error: 'PC component data file not found' });
@@ -61,16 +61,16 @@ app.get('/api/ai-build', async (req, res) => {
     console.log('Reading file...');
     const rawData = fs.readFileSync(filePath, 'utf8');
     console.log('File read successfully, length:', rawData.length);
-    
+
     const pcData = JSON.parse(rawData);
     console.log('JSON parsed successfully, items:', pcData.length);
-    
+
     // Group components by type and filter out invalid prices
     const groupedComponents = {};
     pcData.forEach(component => {
       const type = component.type.toUpperCase();
       const price = parseFloat(component.price);
-      
+
       // Only include components with valid prices
       if (!isNaN(price) && price > 0) {
         if (!groupedComponents[type]) {
@@ -96,8 +96,8 @@ app.get('/api/ai-build', async (req, res) => {
         CASE: 0.07
       },
       cpu: {
-        CPU: 0.35,
-        GPU: 0.25,
+        CPU: 0.40,
+        GPU: 0.20,
         RAM: 0.12,
         STORAGE: 0.10,
         MOTHERBOARD: 0.10,
@@ -125,7 +125,7 @@ app.get('/api/ai-build', async (req, res) => {
     for (const [type, percentage] of Object.entries(allocation)) {
       const typeBudget = budgetInDollars * percentage;
       const availableComponents = groupedComponents[type] || [];
-      
+
       // Sort components by score and filter by budget
       const sortedComponents = availableComponents
         .filter(comp => comp.price <= typeBudget && comp.price > 0)
@@ -163,16 +163,16 @@ app.get('/api/ai-build', async (req, res) => {
       build: selectedBuild,
       totalPrice: totalPrice
     };
-    
+
     console.log('Sending response:', JSON.stringify(response, null, 2));
     res.json(response);
 
   } catch (error) {
     console.error('Build generation error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       error: 'Failed to generate build',
-      details: error.message 
+      details: error.message
     });
   }
 });
@@ -181,10 +181,10 @@ app.get('/api/ai-build', async (req, res) => {
 app.get('/api/components/:task', (req, res) => {
   const task = req.params.task;
   console.log(`Fetching components for task: ${task}`);
-  
+
   // Sample component data based on task type
   let components = [];
-  
+
   if (task === 'general') {
     components = [
       { type: 'CPU', model: 'Intel Core i5-12400', price: 200 },
@@ -218,23 +218,23 @@ app.get('/api/components/:task', (req, res) => {
   } else {
     return res.status(400).json({ error: 'Invalid task type' });
   }
-  
+
   res.json(components);
 });
 
 // Helper function to extract storage capacity from part name
 function extractStorageCapacity(name) {
   if (!name) return null;
-  
+
   const nameLower = name.toLowerCase();
-  
+
   // Try to extract capacity from common patterns
   const gbMatch = nameLower.match(/(\d+)\s*gb/i);
   if (gbMatch) return parseInt(gbMatch[1]);
-  
+
   const tbMatch = nameLower.match(/(\d+)\s*tb/i);
   if (tbMatch) return parseInt(tbMatch[1]) * 1024; // Convert TB to GB
-  
+
   // Check for common storage sizes
   if (nameLower.includes('1tb') || nameLower.includes('1 tb')) return 1024;
   if (nameLower.includes('2tb') || nameLower.includes('2 tb')) return 2048;
@@ -244,7 +244,7 @@ function extractStorageCapacity(name) {
   if (nameLower.includes('240gb') || nameLower.includes('240 gb')) return 240;
   if (nameLower.includes('480gb') || nameLower.includes('480 gb')) return 480;
   if (nameLower.includes('960gb') || nameLower.includes('960 gb')) return 960;
-  
+
   return null; // Return null if capacity can't be determined
 }
 
