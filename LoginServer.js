@@ -24,14 +24,14 @@ const UserSchema = new mongoose.Schema({
   username: String,
   password: String,
   mail: String,
-  otp: String, 
-  address: String 
+  otp: String,
+  address: String
 });
 
 const User = mongoose.model("User", UserSchema);
 //signup
 app.post("/signup", async (req, res) => {
-  const { username, password,  mail, address } = req.body;
+  const { username, password, mail, address } = req.body;
   console.log(req.body)
   try {
     const existingUser = await User.findOne({ username });
@@ -58,7 +58,7 @@ app.post("/login", async (req, res) => {
     if (user) {
       // Generate JWT token
       const token = jwt.sign({ userId: user._id }, JWT_SECRET);
-      res.json({ 
+      res.json({
         message: "Login successful",
         token: token,
         user: { name: user.username }
@@ -94,8 +94,8 @@ app.post("/send-otp", async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: "drunkendog4@gmail.com",       // <-- replace with your email
-      pass: "siov qool hqrn svci",          // <-- use App Password if Gmail
+      user: "tautea3@gmail.com",       // <-- replace with your email
+      pass: "rvqu hrtf hnii rgru",          // <-- use App Password if Gmail
     },
   });
 
