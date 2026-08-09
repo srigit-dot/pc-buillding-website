@@ -177,50 +177,7 @@ app.get('/api/ai-build', async (req, res) => {
   }
 });
 
-// Add a route for /api/components/:task
-app.get('/api/components/:task', (req, res) => {
-  const task = req.params.task;
-  console.log(`Fetching components for task: ${task}`);
 
-  // Sample component data based on task type
-  let components = [];
-
-  if (task === 'general') {
-    components = [
-      { type: 'CPU', model: 'Intel Core i5-12400', price: 200 },
-      { type: 'GPU', model: 'NVIDIA GeForce GTX 1660', price: 250 },
-      { type: 'RAM', model: 'Corsair Vengeance 16GB', price: 80 },
-      { type: 'Storage', model: 'Samsung 970 EVO 500GB', price: 70 },
-      { type: 'Motherboard', model: 'MSI B660M-A', price: 150 },
-      { type: 'PSU', model: 'EVGA 600W Bronze', price: 60 },
-      { type: 'Case', model: 'NZXT H510', price: 90 }
-    ];
-  } else if (task === 'cpu') {
-    components = [
-      { type: 'CPU', model: 'AMD Ryzen 7 5800X', price: 350 },
-      { type: 'GPU', model: 'NVIDIA GeForce RTX 3060', price: 350 },
-      { type: 'RAM', model: 'G.Skill Ripjaws 32GB', price: 120 },
-      { type: 'Storage', model: 'WD Black 1TB', price: 100 },
-      { type: 'Motherboard', model: 'ASUS ROG B550-F', price: 180 },
-      { type: 'PSU', model: 'Corsair RM750', price: 100 },
-      { type: 'Case', model: 'Lian Li Lancool II', price: 120 }
-    ];
-  } else if (task === 'gpu') {
-    components = [
-      { type: 'CPU', model: 'Intel Core i7-12700K', price: 400 },
-      { type: 'GPU', model: 'NVIDIA GeForce RTX 3070', price: 500 },
-      { type: 'RAM', model: 'Corsair Dominator 32GB', price: 150 },
-      { type: 'Storage', model: 'Samsung 980 Pro 1TB', price: 130 },
-      { type: 'Motherboard', model: 'MSI MPG Z690', price: 250 },
-      { type: 'PSU', model: 'EVGA 850W Gold', price: 130 },
-      { type: 'Case', model: 'Phanteks Enthoo 719', price: 200 }
-    ];
-  } else {
-    return res.status(400).json({ error: 'Invalid task type' });
-  }
-
-  res.json(components);
-});
 
 // Helper function to extract storage capacity from part name
 function extractStorageCapacity(name) {
